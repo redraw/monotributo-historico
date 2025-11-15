@@ -102,3 +102,20 @@ El script de análisis genera visualizaciones que permiten entender:
 - **Comparación de componentes:** ¿Qué parte del monotributo creció más: impuesto, aportes jubilatorios u obra social?
 - **Diferencias entre actividades:** ¿Cómo difieren los aumentos entre servicios y ventas?
 - **CAGR (Tasa de crecimiento anual compuesta):** ¿Cuál es el crecimiento promedio anual de cada categoría?
+
+### Ajuste por Inflación (IPC)
+
+El script calcula valores "reales" ajustados por inflación usando el Índice de Precios al Consumidor (IPC):
+
+1. **Fuente de datos:** API Argentina Datos devuelve variaciones mensuales de inflación (ej: 2.3%)
+2. **Construcción del índice acumulado:**
+   - Cada variación mensual se convierte a factor multiplicativo: `factor = 1 + (tasa% / 100)`
+   - Se construye índice acumulado: `índice[n] = índice[n-1] × factor[n]`
+   - Se normaliza al período base = 100
+3. **Cálculo de valores reales:** `monto_real = monto_nominal × (índice_base / índice_período)`
+
+**Ejemplo:** Si el monotributo categoría A aumentó de $787 (2017) a $37,085 (2025):
+- Aumento nominal: +4,612%
+- En términos reales (pesos de 2017): **-47.9%** (perdió poder adquisitivo)
+
+Esto permite ver si los aumentos del monotributo compensaron o no la inflación argentina.

@@ -102,9 +102,14 @@ The main data file `data/monotributo_historico.json` contains:
 - Maintains chronological order and updates metadata
 
 **analizar_monotributo.py**:
-- Loads historical data and IPC inflation index
+- Loads historical data and IPC inflation index from Argentina Datos API
 - Filters by activity type and component (via CLI args)
-- Calculates inflation-adjusted "real" values using IPC base period
+- **Constructs accumulated price index** from monthly variations:
+  - API returns monthly inflation rates (e.g., 2.3%)
+  - Converts to multiplicative factors: `factor = 1 + (rate% / 100)`
+  - Builds cumulative index: `index[n] = index[n-1] × factor[n]`
+  - Normalizes to base period = 100
+- Calculates inflation-adjusted "real" values: `monto_real = monto_nominal × (100 / index_periodo)`
 - Generates 4 interactive Plotly charts per run:
   1. Nominal evolution (line chart)
   2. Real evolution (inflation-adjusted line chart)
@@ -139,4 +144,8 @@ Generated files go to:
 - The `normalize_number()` function is duplicated across scrapers - maintains consistency in parsing currency strings
 - Categories A-K are hardcoded in specific order matching AFIP's table structure
 - When ventas total equals servicios total, only one record is created
-- IPC adjustment calculates `monto_real = monto_nominal × (base_IPC / period_IPC)` to express all values in base period currency
+- **IPC adjustment methodology:**
+  - The Argentina Datos API returns **monthly inflation rates** (not cumulative index)
+  - Script builds cumulative price index using: `index[n] = index[n-1] × (1 + rate[n]/100)`
+  - Real values calculated as: `monto_real = monto_nominal × (index_base / index_periodo)`
+  - All values expressed in constant pesos of the base period (default: first period in dataset)

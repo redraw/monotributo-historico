@@ -91,6 +91,12 @@ df_ipc['year_month'] = df_ipc['fecha'].dt.strftime('%Y-%m')
 # Ordenar por fecha
 df_ipc = df_ipc.sort_values('fecha')
 
+# Construir índice de precios acumulado
+# Los valores de la API son variaciones mensuales (%), necesitamos convertirlos a índice
+# Fórmula: índice_mes_n = índice_mes_(n-1) × (1 + variación%/100)
+df_ipc['factor_mensual'] = 1 + (df_ipc['valor'] / 100)
+df_ipc['indice_acumulado'] = df_ipc['factor_mensual'].cumprod()
+
 # Determinar el período base para el IPC
 if args.ipc_base:
     # Validar que el período base existe en los datos
@@ -99,30 +105,33 @@ if args.ipc_base:
         print(f"Períodos disponibles: {df_ipc['year_month'].min()} a {df_ipc['year_month'].max()}")
         exit(1)
 
-    # Usar el período especificado
-    valor_base = df_ipc[df_ipc['year_month'] == args.ipc_base]['valor'].iloc[0]
+    periodo_base = args.ipc_base
+    indice_base = df_ipc[df_ipc['year_month'] == args.ipc_base]['indice_acumulado'].iloc[0]
     fecha_base = df_ipc[df_ipc['year_month'] == args.ipc_base]['fecha'].iloc[0]
 else:
     # Usar el primer valor disponible en el dataset del monotributo como base
     primer_periodo = df_actividad['period'].min()
     if primer_periodo in df_ipc['year_month'].values:
-        valor_base = df_ipc[df_ipc['year_month'] == primer_periodo]['valor'].iloc[0]
+        periodo_base = primer_periodo
+        indice_base = df_ipc[df_ipc['year_month'] == primer_periodo]['indice_acumulado'].iloc[0]
         fecha_base = df_ipc[df_ipc['year_month'] == primer_periodo]['fecha'].iloc[0]
     else:
         # Si no existe, usar el primer valor disponible de IPC
-        valor_base = df_ipc['valor'].iloc[0]
+        periodo_base = df_ipc['year_month'].iloc[0]
+        indice_base = df_ipc['indice_acumulado'].iloc[0]
         fecha_base = df_ipc['fecha'].min()
 
-# Crear índice acumulado: dividir el valor base por cada valor
-# Esto nos da cuánto valía $1 del período base en términos de cada período pasado
-df_ipc['indice_acumulado'] = valor_base / df_ipc['valor']
+# Normalizar el índice al período base (período base = 100)
+df_ipc['indice_normalizado'] = 100 * (df_ipc['indice_acumulado'] / indice_base)
 
-# Crear diccionario para lookup rápido
-ipc_dict = dict(zip(df_ipc['year_month'], df_ipc['indice_acumulado']))
+# Crear diccionario para lookup rápido (usando índice normalizado)
+ipc_dict = dict(zip(df_ipc['year_month'], df_ipc['indice_normalizado']))
 
 # Ajustar montos por inflación
+# monto_real = monto_nominal × (índice_base / índice_periodo)
+# Como normalizamos índice_base = 100, entonces: monto_real = monto_nominal × (100 / índice_periodo)
 df_actividad['monto_real'] = df_actividad.apply(
-    lambda row: row['monto_analizado'] * ipc_dict.get(row['period'], 1),
+    lambda row: row['monto_analizado'] * (100 / ipc_dict.get(row['period'], 100)),
     axis=1
 )
 
