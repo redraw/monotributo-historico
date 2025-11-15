@@ -22,24 +22,40 @@ jobs:
           enable-cache: true
 
       - name: Ejecutar scraper actual
-        run: uv run scrape_actual.py
+        run: uv run scripts/scrape_actual.py
 
       - name: Verificar cambios
         id: verify-changed-files
         run: |
-          if git diff --quiet monotributo_historico.json; then
+          if git diff --quiet data/monotributo_historico.json; then
             echo "changed=false" >> $GITHUB_OUTPUT
           else
             echo "changed=true" >> $GITHUB_OUTPUT
           fi
+
+      - name: Generar todos los gráficos
+        if: steps.verify-changed-files.outputs.changed == 'true'
+        run: |
+          # Limpiar gráficos antiguos
+          rm -f graficos/*.html
+
+          # Generar todos los gráficos
+          for tipo in servicios ventas; do
+            for componente in total impuesto_integrado aporte_sipa aporte_obra_social; do
+              echo "Generando gráficos para $tipo - $componente..."
+              uv run scripts/analizar_monotributo.py --tipo $tipo --componente $componente
+            done
+          done
+
+          echo "✓ Todos los gráficos generados"
 
       - name: Commit y push cambios
         if: steps.verify-changed-files.outputs.changed == 'true'
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add monotributo_historico.json
-          git commit -m "Actualizar datos del monotributo ($(date +'%Y-%m-%d'))"
+          git add data/monotributo_historico.json graficos/*.html index.html
+          git commit -m "Actualizar datos del monotributo y regenerar gráficos ($(date +'%Y-%m-%d'))"
           git push
 
       - name: Sin cambios detectados

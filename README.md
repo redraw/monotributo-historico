@@ -76,10 +76,14 @@ Todos los gráficos son interactivos (zoom, hover, activar/desactivar series).
 
 ## Actualización Automática
 
-Este repositorio incluye un GitHub Action que ejecuta `scripts/scrape_actual.py` automáticamente:
+Este repositorio incluye un GitHub Action que se ejecuta automáticamente:
 - **Frecuencia:** Todos los lunes a las 10:00 UTC
-- **Acción:** Extrae los datos actuales del monotributo y actualiza el JSON si hay cambios
-- **También puedes:** Ejecutar el workflow manualmente desde la pestaña "Actions" en GitHub
+- **Proceso:**
+  1. Ejecuta `scripts/scrape_actual.py` para extraer datos actuales de AFIP
+  2. Detecta si hubo cambios en `data/monotributo_historico.json`
+  3. Si hay cambios, regenera todos los gráficos (32 archivos HTML)
+  4. Hace commit y push de los datos y gráficos actualizados
+- **Ejecución manual:** Puedes ejecutar el workflow manualmente desde la pestaña "Actions" en GitHub
 
 ## Fuentes
 
