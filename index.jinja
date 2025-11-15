@@ -46,6 +46,12 @@
             padding: 15px;
             border-radius: 6px;
             border-left: 4px solid #007bff;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .file-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
         .file-item a {
             color: #007bff;
@@ -54,6 +60,7 @@
             font-size: 16px;
             display: block;
             margin-bottom: 8px;
+            transition: color 0.2s ease;
         }
         .file-item a:hover {
             text-decoration: underline;
