@@ -109,17 +109,17 @@ if args.ipc_base:
     indice_base = df_ipc[df_ipc['year_month'] == args.ipc_base]['indice_acumulado'].iloc[0]
     fecha_base = df_ipc[df_ipc['year_month'] == args.ipc_base]['fecha'].iloc[0]
 else:
-    # Usar el primer valor disponible en el dataset del monotributo como base
-    primer_periodo = df_actividad['period'].min()
-    if primer_periodo in df_ipc['year_month'].values:
-        periodo_base = primer_periodo
-        indice_base = df_ipc[df_ipc['year_month'] == primer_periodo]['indice_acumulado'].iloc[0]
-        fecha_base = df_ipc[df_ipc['year_month'] == primer_periodo]['fecha'].iloc[0]
+    # Usar el último valor disponible en el dataset del monotributo como base
+    ultimo_periodo = df_actividad['period'].max()
+    if ultimo_periodo in df_ipc['year_month'].values:
+        periodo_base = ultimo_periodo
+        indice_base = df_ipc[df_ipc['year_month'] == ultimo_periodo]['indice_acumulado'].iloc[0]
+        fecha_base = df_ipc[df_ipc['year_month'] == ultimo_periodo]['fecha'].iloc[0]
     else:
-        # Si no existe, usar el primer valor disponible de IPC
-        periodo_base = df_ipc['year_month'].iloc[0]
-        indice_base = df_ipc['indice_acumulado'].iloc[0]
-        fecha_base = df_ipc['fecha'].min()
+        # Si no existe, usar el último valor disponible de IPC
+        periodo_base = df_ipc['year_month'].iloc[-1]
+        indice_base = df_ipc['indice_acumulado'].iloc[-1]
+        fecha_base = df_ipc['fecha'].max()
 
 # Normalizar el índice al período base (período base = 100)
 df_ipc['indice_normalizado'] = 100 * (df_ipc['indice_acumulado'] / indice_base)
