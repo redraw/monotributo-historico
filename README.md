@@ -2,6 +2,14 @@
 
 Datos históricos del monotributo argentino desde 2010 hasta la actualidad, extraídos automáticamente desde el sitio oficial de AFIP.
 
+## Fuentes de Datos
+
+Los datos se obtienen automáticamente de las siguientes fuentes oficiales:
+
+- **📄 Categorías históricas:** [Montos y categorías anteriores](https://www.afip.gob.ar/monotributo/montos-y-categorias-anteriores.asp) - AFIP
+- **📊 Categorías vigentes:** [Categorías actuales](https://www.afip.gob.ar/monotributo/categorias.asp) - AFIP
+- **📈 Índice de inflación (IPC):** [API Argentina Datos](https://api.argentinadatos.com/v1/finanzas/indices/inflacion)
+
 ## Estructura de Datos
 
 Cada registro incluye:
@@ -84,12 +92,6 @@ Este repositorio incluye un GitHub Action que se ejecuta automáticamente:
   3. Si hay cambios, regenera todos los gráficos (32 archivos HTML)
   4. Hace commit y push de los datos y gráficos actualizados
 - **Ejecución manual:** Puedes ejecutar el workflow manualmente desde la pestaña "Actions" en GitHub
-
-## Fuentes
-
-- **Monotributo histórico:** https://www.afip.gob.ar/monotributo/montos-y-categorias-anteriores.asp
-- **Monotributo actual:** https://www.afip.gob.ar/monotributo/categorias.asp
-- **Datos de inflación (IPC):** https://api.argentinadatos.com/v1/finanzas/indices/inflacion
 
 ## Análisis Disponibles
 
