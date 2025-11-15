@@ -21,6 +21,13 @@
             color: #555;
             margin-top: 30px;
         }
+        h3 {
+            color: #666;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e0e0e0;
+        }
         .card {
             background: white;
             border-radius: 8px;
@@ -82,14 +89,17 @@
         <h2>Gráficos Disponibles</h2>
         <p>Haz clic en cualquier gráfico para verlo en detalle. Todos los gráficos son interactivos: puedes hacer zoom, activar/desactivar series, y ver detalles al pasar el cursor.</p>
 
+        {% for grupo in graficos_agrupados %}
+        <h3>{{ grupo.label }}</h3>
         <div class="file-list">
-        {% for item in graficos %}
+        {% for item in grupo.graficos %}
             <div class="file-item">
                 <a href="{{ item.filename }}" target="_blank">{{ item.title }}</a>
                 <div class="description">{{ item.description }}</div>
             </div>
         {% endfor %}
         </div>
+        {% endfor %}
     </div>
 
     <div class="card">

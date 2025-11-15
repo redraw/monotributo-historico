@@ -70,7 +70,7 @@ El script `analizar_monotributo.py` genera gráficos interactivos con análisis 
 
 **Parámetros disponibles:**
 - `--tipo {servicios,ventas}` - Tipo de actividad a analizar (default: servicios)
-- `--componente {total,impuesto_integrado,aporte_sipa,aporte_obra_social}` - Componente del monotributo a analizar (default: total)
+- `--componente {total,impuesto_integrado,aporte_sipa,aporte_obra_social,ingresos_brutos}` - Componente del monotributo a analizar (default: total)
 - `--ipc-base YYYY-MM` - Período base para el ajuste por inflación (default: primer período del dataset)
 
 **Gráficos generados:**
@@ -89,7 +89,7 @@ Este repositorio incluye un GitHub Action que se ejecuta automáticamente:
 - **Proceso:**
   1. Ejecuta `scripts/scrape_actual.py` para extraer datos actuales de AFIP
   2. Detecta si hubo cambios en `data/monotributo_historico.json`
-  3. Si hay cambios, regenera todos los gráficos (32 archivos HTML)
+  3. Si hay cambios, regenera todos los gráficos (40 archivos HTML)
   4. Hace commit y push de los datos y gráficos actualizados
 - **Ejecución manual:** Puedes ejecutar el workflow manualmente desde la pestaña "Actions" en GitHub
 

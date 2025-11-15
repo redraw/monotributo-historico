@@ -41,7 +41,7 @@ jobs:
 
           # Generar todos los gráficos
           for tipo in servicios ventas; do
-            for componente in total impuesto_integrado aporte_sipa aporte_obra_social; do
+            for componente in total impuesto_integrado aporte_sipa aporte_obra_social ingresos_brutos; do
               echo "Generando gráficos para $tipo - $componente..."
               uv run scripts/analizar_monotributo.py --tipo $tipo --componente $componente
             done

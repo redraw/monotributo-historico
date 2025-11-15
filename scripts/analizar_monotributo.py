@@ -38,9 +38,9 @@ parser.add_argument(
 parser.add_argument(
     '--componente',
     type=str,
-    choices=['total', 'impuesto_integrado', 'aporte_sipa', 'aporte_obra_social'],
+    choices=['total', 'impuesto_integrado', 'aporte_sipa', 'aporte_obra_social', 'ingresos_brutos'],
     default='total',
-    help='Componente a analizar: total (suma de todos), impuesto_integrado, aporte_sipa, o aporte_obra_social'
+    help='Componente a analizar: total (suma de todos), impuesto_integrado, aporte_sipa, aporte_obra_social, o ingresos_brutos'
 )
 
 args = parser.parse_args()
@@ -389,11 +389,57 @@ for html_file in html_files:
             desc = value
             break
 
+    # Extraer componente del nombre del archivo
+    # Formato: monotributo_{tipo}_{componente}_{grafico}.html
+    parts = basename.replace('monotributo_', '').replace('.html', '').split('_')
+
+    # Identificar el componente
+    componente = None
+    if 'impuesto' in parts and 'integrado' in parts:
+        componente = 'impuesto_integrado'
+    elif 'aporte' in parts and 'sipa' in parts:
+        componente = 'aporte_sipa'
+    elif 'obra' in parts and 'social' in parts:
+        componente = 'aporte_obra_social'
+    elif 'ingresos' in parts and 'brutos' in parts:
+        componente = 'ingresos_brutos'
+    elif 'total' in parts:
+        componente = 'total'
+
     graficos.append({
         'filename': f'{graficos_dir}/{basename}',  # Ruta relativa con carpeta
         'title': title,
-        'description': desc
+        'description': desc,
+        'componente': componente
     })
+
+# Agrupar gráficos por componente
+from collections import defaultdict
+graficos_por_componente = defaultdict(list)
+for grafico in graficos:
+    comp = grafico['componente']
+    if comp:
+        graficos_por_componente[comp].append(grafico)
+
+# Ordenar componentes y convertir a lista de tuplas
+componente_labels = {
+    'total': 'Total Mensual',
+    'impuesto_integrado': 'Impuesto Integrado',
+    'aporte_sipa': 'Aporte Jubilatorio (SIPA)',
+    'aporte_obra_social': 'Aporte Obra Social',
+    'ingresos_brutos': 'Ingresos Brutos'
+}
+
+componentes_ordenados = ['total', 'ingresos_brutos', 'impuesto_integrado', 'aporte_sipa', 'aporte_obra_social']
+graficos_agrupados = [
+    {
+        'componente': comp,
+        'label': componente_labels.get(comp, comp),
+        'graficos': graficos_por_componente[comp]
+    }
+    for comp in componentes_ordenados
+    if comp in graficos_por_componente
+]
 
 # Cargar template y renderizar
 with open('index.jinja', 'r', encoding='utf-8') as f:
@@ -401,7 +447,7 @@ with open('index.jinja', 'r', encoding='utf-8') as f:
 
 html_output = template.render(
     fecha_datos=fecha_datos,
-    graficos=graficos
+    graficos_agrupados=graficos_agrupados
 )
 
 with open('index.html', 'w', encoding='utf-8') as f:
